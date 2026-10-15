@@ -63,28 +63,30 @@ email-service/
 
 All configuration is managed exclusively via server-side environment variables. Validate required values at startup:
 
-| Variable | Required | Default | Description |
-| :--- | :---: | :---: | :--- |
-| `PORT` | No | `3000` | Port for local development server |
-| `NODE_ENV` | No | `production` | Node environment (`development`, `production`, `test`) |
-| `API_KEY` | **Yes** | — | Secret Bearer key required to authenticate caller backend requests |
-| `ALLOWED_ORIGINS` | No | `*` | Comma-separated list of allowed CORS origins or `*` |
-| `SMTP_HOST` | **Yes** | — | Hostname of SMTP provider (e.g., `smtp.mailgun.org`) |
-| `SMTP_PORT` | No | `587` | SMTP port (`587` for STARTTLS, `465` for SSL/TLS) |
-| `SMTP_SECURE` | No | `false` | Set `true` if connecting to port `465`, `false` for port `587`/`25` |
-| `SMTP_USER` | **Yes** | — | SMTP username / access key |
-| `SMTP_PASS` | **Yes** | — | SMTP password / secret key |
-| `MAIL_FROM` | **Yes** | — | Sender header (e.g. `"Acme <no-reply@yourdomain.com>"`) |
+| Variable          | Required |   Default    | Description                                                         |
+| :---------------- | :------: | :----------: | :------------------------------------------------------------------ |
+| `PORT`            |    No    |    `3000`    | Port for local development server                                   |
+| `NODE_ENV`        |    No    | `production` | Node environment (`development`, `production`, `test`)              |
+| `API_KEY`         | **Yes**  |      —       | Secret Bearer key required to authenticate caller backend requests  |
+| `ALLOWED_ORIGINS` |    No    |     `*`      | Comma-separated list of allowed CORS origins or `*`                 |
+| `SMTP_HOST`       | **Yes**  |      —       | Hostname of SMTP provider (e.g., `smtp.mailgun.org`)                |
+| `SMTP_PORT`       |    No    |    `587`     | SMTP port (`587` for STARTTLS, `465` for SSL/TLS)                   |
+| `SMTP_SECURE`     |    No    |   `false`    | Set `true` if connecting to port `465`, `false` for port `587`/`25` |
+| `SMTP_USER`       | **Yes**  |      —       | SMTP username / access key                                          |
+| `SMTP_PASS`       | **Yes**  |      —       | SMTP password / secret key                                          |
+| `MAIL_FROM`       | **Yes**  |      —       | Sender header (e.g. `"Acme <no-reply@yourdomain.com>"`)             |
 
 ---
 
 ## Local Development
 
 ### 1. Prerequisites
+
 - Node.js `v18+` (Node `v20+` or `v24+` recommended)
 - npm `v9+`
 
 ### 2. Setup
+
 Clone or enter the project directory and configure the environment:
 
 ```bash
@@ -93,6 +95,7 @@ npm install
 ```
 
 Edit `.env` with your development values:
+
 ```env
 PORT=3000
 NODE_ENV=development
@@ -107,6 +110,7 @@ MAIL_FROM="Acme Dev <no-reply@yourdomain.com>"
 ```
 
 ### 3. Run Locally
+
 ```bash
 # Start server with watch mode
 npm run dev
@@ -114,9 +118,11 @@ npm run dev
 # Or standard start
 npm start
 ```
+
 The server will start at `http://localhost:3000`.
 
 ### 4. Run Automated Tests
+
 The project uses Node's native test runner (`node:test`):
 
 ```bash
@@ -130,10 +136,12 @@ npm test
 ### Endpoint: `POST /api/send-email`
 
 #### Headers
+
 - `Content-Type: application/json`
 - `Authorization: Bearer <API_KEY>`
 
 #### Request Body Structure
+
 ```json
 {
   "to": "recipient@example.com",
@@ -149,20 +157,21 @@ npm test
 }
 ```
 
-- `to` *(string, required)*: Valid email address.
-- `subject` *(string, required)*: Non-empty subject line.
-- `text` *(string, optional)*: Plain-text email body.
-- `template` *(object, optional)*:
-  - `name` *(string, required)*: Name of an approved template in `ALLOWED_TEMPLATES` (`"welcome"`).
-  - `data` *(object, optional)*: Key-value pairs supplied to the template.
-- *Requirement*: At least one of `text` or `template` must be provided.
-- *Strictness*: Top-level and template-level unknown fields are rejected with HTTP 400.
+- `to` _(string, required)_: Valid email address.
+- `subject` _(string, required)_: Non-empty subject line.
+- `text` _(string, optional)_: Plain-text email body.
+- `template` _(object, optional)_:
+  - `name` _(string, required)_: Name of an approved template in `ALLOWED_TEMPLATES` (`"welcome"`).
+  - `data` _(object, optional)_: Key-value pairs supplied to the template.
+- _Requirement_: At least one of `text` or `template` must be provided.
+- _Strictness_: Top-level and template-level unknown fields are rejected with HTTP 400.
 
 ---
 
 ## Testing & Example cURL Requests
 
 ### 1. Send Plain-Text Email
+
 ```bash
 curl -X POST http://localhost:3000/api/send-email \
   -H "Authorization: Bearer local_development_secret_key_12345" \
@@ -173,8 +182,10 @@ curl -X POST http://localhost:3000/api/send-email \
     "text": "Your monthly statement is ready for download."
   }'
 ```
+
 **Expected Status:** `202 Accepted`  
 **Example Response:**
+
 ```json
 {
   "success": true,
@@ -186,6 +197,7 @@ curl -X POST http://localhost:3000/api/send-email \
 ---
 
 ### 2. Send EJS-Template Email
+
 ```bash
 curl -X POST http://localhost:3000/api/send-email \
   -H "Authorization: Bearer local_development_secret_key_12345" \
@@ -202,8 +214,10 @@ curl -X POST http://localhost:3000/api/send-email \
     }
   }'
 ```
+
 **Expected Status:** `202 Accepted`  
 **Example Response:**
+
 ```json
 {
   "success": true,
@@ -215,6 +229,7 @@ curl -X POST http://localhost:3000/api/send-email \
 ---
 
 ### 3. Send HTML Email with Plain-Text Alternative
+
 When both `template` and `text` are provided, the template is rendered as the rich HTML body, and `text` is transmitted as the multipart plain-text fallback:
 
 ```bash
@@ -234,8 +249,10 @@ curl -X POST http://localhost:3000/api/send-email \
     }
   }'
 ```
+
 **Expected Status:** `202 Accepted`  
 **Example Response:**
+
 ```json
 {
   "success": true,
@@ -247,6 +264,7 @@ curl -X POST http://localhost:3000/api/send-email \
 ---
 
 ### 4. Invalid or Missing API Key
+
 ```bash
 curl -X POST http://localhost:3000/api/send-email \
   -H "Authorization: Bearer unauthorized_key" \
@@ -257,8 +275,10 @@ curl -X POST http://localhost:3000/api/send-email \
     "text": "Test"
   }'
 ```
+
 **Expected Status:** `401 Unauthorized`  
 **Example Response:**
+
 ```json
 {
   "success": false,
@@ -269,6 +289,7 @@ curl -X POST http://localhost:3000/api/send-email \
 ---
 
 ### 5. Invalid Payload (Validation Failure)
+
 ```bash
 curl -X POST http://localhost:3000/api/send-email \
   -H "Authorization: Bearer local_development_secret_key_12345" \
@@ -279,8 +300,10 @@ curl -X POST http://localhost:3000/api/send-email \
     "unexpected_field": 123
   }'
 ```
+
 **Expected Status:** `400 Bad Request`  
 **Example Response:**
+
 ```json
 {
   "success": false,
@@ -309,23 +332,27 @@ curl -X POST http://localhost:3000/api/send-email \
 ---
 
 ### 6. Upstream SMTP Delivery Failure
+
 When the upstream SMTP provider rejects the connection, authentication, or recipient:
 
 **Expected Status:** `500 Internal Server Error`  
 **Example Response:**
+
 ```json
 {
   "success": false,
   "error": "Failed to send email due to an upstream or internal delivery failure"
 }
 ```
-*Note: Credentials, internal network addresses, and raw stack traces are stripped before sending the response to the client.*
+
+_Note: Credentials, internal network addresses, and raw stack traces are stripped before sending the response to the client._
 
 ---
 
 ## Vercel Deployment Guide
 
 ### Deployment Architecture
+
 - Vercel automatically treats files in `api/` as Serverless Functions.
 - `api/index.js` exports the configured Express application.
 - `vercel.json` rewrites all incoming traffic to `api/index.js` and instructs `@vercel/nft` to bundle EJS templates located in `src/templates/**`:
@@ -348,6 +375,7 @@ When the upstream SMTP provider rejects the connection, authentication, or recip
 ```
 
 ### Serverless Execution Constraints & SMTP Provider Compatibility
+
 1. **Stateless Functions**: Serverless instances spin down after execution. Connections are not persistent.
 2. **Execution Timeouts**: Vercel functions have maximum execution limits (typically 10–15s on Hobby, 60s+ on Pro). To avoid hung requests, Nodemailer is configured with:
    - `connectionTimeout: 10000` (10s)
@@ -380,7 +408,7 @@ When the upstream SMTP provider rejects the connection, authentication, or recip
    Or push to your connected Git branch (`main`).
 5. [ ] Verify deployment health:
    ```bash
-   curl https://your-project.vercel.app/api/health
+   curl https://your-project.vercel.app
    ```
 6. [ ] Execute a test email dispatch using the production URL and `API_KEY`.
 
